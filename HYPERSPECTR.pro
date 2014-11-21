@@ -13,8 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    cspectr.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    cspectr.h \
+    SData.h
 
 FORMS    += mainwindow.ui
