@@ -1,9 +1,17 @@
 #ifndef SDATA_H
 #define SDATA_H
 
-#include <Windows.h>
+
 
 enum SPECTR_COMMANDS {NOP, GET_ID, SET_EXP, GET_EXP, GET_SP, SET_TIME, GET_TIME, SET_MOTOR, GET_MOTOR, SET_MODE, GET_MODE};
+#define MARK_START   0xA5
+#define MARK_END     0x5A
+#define SETIDATASIZE 12
+#define SPECDATASIZE 3600
+#define SPECHEADSIZE 10
+typedef unsigned char  byte;
+typedef unsigned short WORD;
+typedef unsigned long  DWORD;
 
 struct SExposition
 {
@@ -14,10 +22,10 @@ struct SExposition
     byte controll_sum;
     byte m2;
     SExposition (const WORD &Exposition, const SPECTR_COMMANDS& Command):exposition(Exposition),
-                                                                        m1(0xA5),command(Command),
+                                                                        m1(MARK_START),command(Command),
                                                                         reserved(0),
                                                                         controll_sum(0),
-                                                                        m2(0x5A){};
+                                                                        m2(MARK_END){};
 };
 struct SDrive
 {
@@ -28,10 +36,10 @@ struct SDrive
     byte controll_sum;
     byte m2;
     SDrive(const WORD &Drive, const SPECTR_COMMANDS& Command):drive(Drive),
-                                                                        m1(0xA5),command(Command),
+                                                                        m1(MARK_START),command(Command),
                                                                         reserved(0),
                                                                         controll_sum(0),
-                                                                        m2(0x5A){};
+                                                                        m2(MARK_END){};
 };
 struct SId
 {
@@ -41,7 +49,7 @@ struct SId
     WORD reserved;
     byte controll_sum;
     byte m2;
-    SId():id(0),m1(0xA5),command(GET_ID),controll_sum(0),m2(0x5A){};
+    SId():id(0),m1(MARK_START),command(GET_ID),controll_sum(0),m2(MARK_END){};
 };
 struct SSpectr
 {
@@ -51,7 +59,7 @@ struct SSpectr
     WORD reserved2;
     byte controll_sum;
     byte m2;
-    SSpectr():m1(0xA5),command(GET_SP),controll_sum(0),m2(0x5A), reserved1(0),reserved2(0){};
+    SSpectr():m1(MARK_START),command(GET_SP),controll_sum(0),m2(MARK_END), reserved1(0),reserved2(0){};
 };
 struct STime
 {
@@ -61,10 +69,27 @@ struct STime
     byte controll_sum;
     byte m2;
     STime(const DWORD &Time, const SPECTR_COMMANDS& Command):_time(Time),
-                                                                        m1(0xA5),command(Command),
+                                                                        m1(MARK_START),command(Command),
                                                                         controll_sum(0),
-                                                                        m2(0x5A){};
+                                                                        m2(MARK_END){};
 };
+
+struct SMode
+{
+    byte m1;
+    byte command;
+    byte mode;
+    byte reserved1;
+    byte reserved2;
+    byte reserved3;
+    byte controll_sum;
+    byte m2;
+    STime(const byte &mode, const SPECTR_COMMANDS& Command):mode(Mode),reserved1(0), reserved2(0), reserved3(0),
+                                                                        m1(MARK_START),command(Command),
+                                                                        controll_sum(0),
+                                                                        m2(MARK_END){};
+};
+
 
 struct SSpectrHeader
 {
@@ -74,6 +99,19 @@ struct SSpectrHeader
     byte  offset;
     byte  device_mode;
 };
+struct SSpectrBytes
+{
+    byte dark_pixels[7];
+    byte good_pixels[3600];
+    byte dark_end[7];
+};
+
+struct SSpectrData
+{
+    SSpectrHeader header;
+    SSpectrBytes  bytes;
+};
+
 
 
 #endif // SDATA_H
